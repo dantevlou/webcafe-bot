@@ -1,3 +1,12 @@
-import discord
+import os
 
-print(f"discord.py version: {discord.__version__}")
+from dotenv import load_dotenv
+
+load_dotenv()
+
+token = os.getenv("DISCORD_TOKEN")
+
+if token:
+    print("Discord token loaded successfully.")
+else:
+    print("Discord token was not found.")
