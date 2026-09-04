@@ -1,12 +1,20 @@
 import os
 
+import discord
 from dotenv import load_dotenv
+
 
 load_dotenv()
 
 token = os.getenv("DISCORD_TOKEN")
 
-if token:
-    print("Discord token loaded successfully.")
-else:
-    print("Discord token was not found.")
+intents = discord.Intents.default()
+client = discord.Client(intents=intents)
+
+
+@client.event
+async def on_ready():
+    print(f"Logged in as {client.user}")
+
+
+client.run(token)
