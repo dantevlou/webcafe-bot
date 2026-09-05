@@ -1,7 +1,11 @@
 import os
+from io import BytesIO
 
 import discord
 from dotenv import load_dotenv
+from PIL import Image
+
+from welcome_card_preview import OUTPUT_PATH, create_welcome_card
 
 
 load_dotenv()
@@ -28,23 +32,17 @@ async def on_member_join(member):
         print("Login channel could not be found.")
         return
 
-    embed = discord.Embed(
-        title="webcafe.exe // NEW CONNECTION",
-        description=(
-            f"```text\n"
-            f"> user detected\n"
-            f"> connection status: ONLINE\n"
-            f"```\n"
-            f"Welcome, {member.mention}.\n\n"
-            f"Configure your account in **#ᴜsᴇʀ-sᴇᴛᴛɪɴɢs** "
-            f"to unlock the rest of the café."
-        ),
-        color=0x67DDE0
-    )
+    avatar_bytes = await member.display_avatar.read()
 
-    embed.set_footer(text="webcafe.exe • connection established")
+    with Image.open(BytesIO(avatar_bytes)) as avatar_image:
+        create_welcome_card(
+            member.name,
+            avatar_image,
+        )
 
-    await login_channel.send(embed=embed)
+        await login_channel.send(
+            file=discord.File(OUTPUT_PATH),
+        )
 
 
 client.run(token)
