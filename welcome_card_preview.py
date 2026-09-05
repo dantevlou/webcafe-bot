@@ -240,11 +240,22 @@ def create_welcome_card(
     line_step = 46
 
     # Avatar
-    avatar_size = 140
+    avatar_size = 124
     avatar_left = text_right - avatar_size
-    avatar_top = body_start_y - 8
+    avatar_top = body_start_y + 4
+    avatar_border = 8
 
     if avatar is not None:
+        draw.ellipse(
+            (
+                avatar_left - avatar_border,
+                avatar_top - avatar_border,
+                avatar_left + avatar_size + avatar_border,
+                avatar_top + avatar_size + avatar_border,
+             ),
+             fill=LINEN,
+        )
+
         avatar_image = ImageOps.fit(
             avatar,
             (avatar_size, avatar_size),
