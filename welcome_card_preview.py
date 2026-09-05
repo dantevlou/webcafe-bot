@@ -161,6 +161,57 @@ def create_welcome_card(
             width=2,
         )
 
+    first_button_x = button_start_x
+    second_button_x = button_start_x + button_size + button_gap
+    third_button_x = button_start_x + (button_size + button_gap) * 2
+
+    # Minimise
+    draw.line(
+        (
+            first_button_x + 5,
+            button_y + 15,
+            first_button_x + 17,
+            button_y + 15,
+        ),
+        fill=MIDNIGHT_VIOLET,
+        width=2,
+    )
+
+    # Maximise
+    draw.rectangle(
+        (
+            second_button_x + 5,
+            button_y + 5,
+            second_button_x + 17,
+            button_y + 17,
+        ),
+        outline=MIDNIGHT_VIOLET,
+        width=2,
+    )
+
+    # Close
+    draw.line(
+        (
+            third_button_x + 5,
+            button_y + 5,
+            third_button_x + 17,
+            button_y + 17,
+        ),
+        fill=MIDNIGHT_VIOLET,
+        width=2,
+    )
+
+    draw.line(
+        (
+            third_button_x + 17,
+            button_y + 5,
+            third_button_x + 5,
+            button_y + 17,
+        ),
+        fill=MIDNIGHT_VIOLET,
+        width=2,
+    )
+
     # Title-bar text
     title_text = "webcafe.exe"
 
@@ -407,7 +458,7 @@ def create_welcome_card(
 
     cursor_y = (
         prompt_top
-        + (prompt_visual_height - cursor_height) // 2 
+        + (prompt_visual_height - cursor_height) // 2
     )
 
     draw.rectangle(
