@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 from theme import (
     LINEN,
@@ -42,10 +42,35 @@ def text_size(font, text: str) -> tuple[int, int]:
     )
 
 
-def create_welcome_card() -> None:
+def fit_text_with_ellipsis(font, text: str, max_width: int) -> str:
+    ellipsis = "..."
+    text_width, _ = text_size(font, text)
+
+    if text_width <= max_width:
+        return text
+
+    trimmed_text = text
+
+    while trimmed_text:
+        candidate = trimmed_text + ellipsis
+        candidate_width, _ = text_size(font, candidate)
+
+        if candidate_width <= max_width:
+            return candidate
+
+        trimmed_text = trimmed_text[:-1]
+
+    return ellipsis
+
+
+def create_welcome_card(
+    username: str,
+    avatar: Image.Image | None = None,
+) -> None:
     title_bar_font = load_font(28, bold=True)
     hero_font = load_font(38, bold=True)
     body_font = load_font(27)
+    body_emphasis_font = load_font(27, bold=True)
     body_bold_font = load_font(29, bold=True)
     prompt_font = load_font(27)
 
@@ -214,23 +239,103 @@ def create_welcome_card() -> None:
     body_start_y = divider_y + 28
     line_step = 46
 
+    # Avatar
+    avatar_size = 140
+    avatar_left = text_right - avatar_size
+    avatar_top = body_start_y - 8
+
+    if avatar is not None:
+        avatar_image = ImageOps.fit(
+            avatar,
+            (avatar_size, avatar_size),
+        )
+
+        avatar_mask = Image.new(
+            "L",
+            (avatar_size, avatar_size),
+            0,
+        )
+        avatar_mask_draw = ImageDraw.Draw(avatar_mask)
+        avatar_mask_draw.ellipse(
+            (0, 0, avatar_size, avatar_size),
+            fill=255,
+        )
+
+        image.paste(
+            avatar_image,
+            (avatar_left, avatar_top),
+            avatar_mask,
+        )
+
+    # Username
+    welcome_prefix = ">> welcome, "
+
     normal_lines = [
-        ">> welcome, new user",
-        ">> session initailised",
+        ">> session initialised",
         ">> status: guest",
     ]
 
     current_y = body_start_y
 
-    for index, line in enumerate(normal_lines):
+    draw.text(
+        (text_left, current_y),
+        welcome_prefix,
+        fill=LINEN,
+        font=body_font,
+    )
+
+    welcome_prefix_width, _ = text_size(
+        body_font,
+        welcome_prefix,
+    )
+
+    username_left = text_left + welcome_prefix_width
+    username_right = avatar_left - 18
+    username_max_width = username_right - username_left
+
+    username_width, _ = text_size(
+        body_emphasis_font,
+        username,
+    )
+
+    username_fits_first_line = username_width <= username_max_width
+
+    username_second_line = ""
+
+    if not username_fits_first_line:
+        second_line_max_width = avatar_left - 18 - text_left
+        username_second_line = fit_text_with_ellipsis(
+            body_emphasis_font,
+            username,
+            second_line_max_width,
+        )
+
+    if username_fits_first_line:
+        draw.text(
+            (username_left, current_y),
+            username,
+            fill=SOFT_PERIWINKLE,
+            font=body_emphasis_font,
+        )
+
+        current_y += line_step
+    else:
+        current_y += line_step
+
+        draw.text(
+            (text_left, current_y),
+            username_second_line,
+            fill=SOFT_PERIWINKLE,
+            font=body_emphasis_font,
+        )
+
+        current_y += line_step
+
+    for line in normal_lines:
         draw.text(
             (text_left, current_y),
             line,
-            fill=(
-                LINEN
-                if index == 0
-                else PALE_SLATE
-            ),
+            fill=PALE_SLATE,
             font=body_font,
         )
 
@@ -310,4 +415,4 @@ def create_welcome_card() -> None:
 
 
 if __name__ == "__main__":
-    create_welcome_card()
+    create_welcome_card("test_user")

@@ -11,5 +11,6 @@ __pycache__/
 # VS Code local settings
 .vscode/
 
-# Generated preview files
+# Local preview files
 welcome_preview.png
+test_avatar.png
