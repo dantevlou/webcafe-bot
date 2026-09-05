@@ -28,6 +28,8 @@ user_settings_message_id = int(
     os.getenv("USER_SETTINGS_MESSAGE_ID")
 )
 
+user_role_id = int(os.getenv("USER_ROLE_ID"))
+
 # Colour roles
 COLOUR_ROLE_IDS = {
     "pink": int(os.getenv("PINK_ROLE_ID")),
@@ -157,8 +159,13 @@ class ColourSelect(discord.ui.Select):
 
         selected_colour = self.values[0]
         selected_role_id = COLOUR_ROLE_IDS[selected_colour]
+
         selected_role = interaction.guild.get_role(
             selected_role_id
+        )
+
+        user_role = interaction.guild.get_role(
+            user_role_id
         )
 
         current_colour_roles = [
@@ -172,7 +179,14 @@ class ColourSelect(discord.ui.Select):
                 *current_colour_roles
             )
 
-        await interaction.user.add_roles(selected_role)
+        await interaction.user.add_roles(
+            selected_role
+        )
+
+        if user_role not in interaction.user.roles:
+            await interaction.user.add_roles(
+                user_role
+            )
 
         await interaction.followup.send(
             (
@@ -240,7 +254,9 @@ class PronounButton(discord.ui.Button):
                 *current_pronoun_roles
             )
 
-        await interaction.user.add_roles(selected_role)
+        await interaction.user.add_roles(
+            selected_role
+        )
 
         if previous_role is not None:
             previous_key = next(
@@ -248,6 +264,7 @@ class PronounButton(discord.ui.Button):
                 for key, role_id in PRONOUN_ROLE_IDS.items()
                 if role_id == previous_role.id
             )
+
             previous_label = PRONOUN_LABELS[
                 previous_key
             ]
@@ -325,7 +342,9 @@ class RegionButton(discord.ui.Button):
                 *current_region_roles
             )
 
-        await interaction.user.add_roles(selected_role)
+        await interaction.user.add_roles(
+            selected_role
+        )
 
         if previous_role is not None:
             previous_key = next(
@@ -333,6 +352,7 @@ class RegionButton(discord.ui.Button):
                 for key, role_id in REGION_ROLE_IDS.items()
                 if role_id == previous_role.id
             )
+
             previous_label = REGION_LABELS[
                 previous_key
             ]
@@ -526,7 +546,10 @@ class GameSelect(discord.ui.Select):
                 GAME_ROLE_IDS[game_key]
             )
             for game_key in selected_games
-            if GAME_ROLE_IDS[game_key] not in current_role_ids
+            if (
+                GAME_ROLE_IDS[game_key]
+                not in current_role_ids
+            )
         ]
 
         roles_to_add = [
