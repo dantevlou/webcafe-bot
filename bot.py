@@ -7,7 +7,13 @@ import discord
 from dotenv import load_dotenv
 from PIL import Image
 
-from database import add_xp, initialise_database
+from database import (
+    add_xp,
+    get_member_roles,
+    get_or_create_member,
+    initialise_database,
+    save_member_roles,
+)
 from settings_panel import (
     OUTPUT_PATH as SETTINGS_PANEL_PATH,
     create_settings_panel,
@@ -142,6 +148,17 @@ LEVEL_ROLE_IDS = {
     100: int(os.getenv("CAFE_LEGEND_ROLE_ID")),
 }
 
+# Miso-managed roles
+MANAGED_ROLE_IDS = {
+    user_role_id,
+    *COLOUR_ROLE_IDS.values(),
+    *PRONOUN_ROLE_IDS.values(),
+    *REGION_ROLE_IDS.values(),
+    *PLATFORM_ROLE_IDS.values(),
+    *GAME_ROLE_IDS.values(),
+    *LEVEL_ROLE_IDS.values(),
+}
+
 XP_MIN = 10
 XP_MAX = 15
 XP_COOLDOWN_SECONDS = 60
@@ -153,6 +170,42 @@ intents.members = True
 intents.message_content = True
 
 client = discord.Client(intents=intents)
+
+
+def save_managed_roles(member: discord.Member):
+    """Save the member's current Miso-managed roles."""
+    role_ids = {
+        role.id
+        for role in member.roles
+        if role.id in MANAGED_ROLE_IDS
+    }
+
+    save_member_roles(
+        member.id,
+        role_ids,
+    )
+
+
+async def restore_managed_roles(member: discord.Member):
+    """Restore the member's saved Miso-managed roles."""
+    saved_role_ids = get_member_roles(member.id)
+
+    roles_to_restore = [
+        member.guild.get_role(role_id)
+        for role_id in saved_role_ids
+        if role_id in MANAGED_ROLE_IDS
+    ]
+
+    roles_to_restore = [
+        role
+        for role in roles_to_restore
+        if role is not None
+    ]
+
+    if roles_to_restore:
+        await member.add_roles(
+            *roles_to_restore
+        )
 
 
 async def sync_level_roles(
@@ -200,6 +253,8 @@ async def sync_level_roles(
         await member.add_roles(
             selected_role
         )
+
+    save_managed_roles(member)
 
 
 class ColourSelect(discord.ui.Select):
@@ -262,6 +317,8 @@ class ColourSelect(discord.ui.Select):
             await interaction.user.add_roles(
                 user_role
             )
+
+        save_managed_roles(interaction.user)
 
         await interaction.followup.send(
             (
@@ -335,6 +392,8 @@ class PronounButton(discord.ui.Button):
         await interaction.user.add_roles(
             selected_role
         )
+
+        save_managed_roles(interaction.user)
 
         if previous_role is not None:
             previous_key = next(
@@ -426,6 +485,8 @@ class RegionButton(discord.ui.Button):
         await interaction.user.add_roles(
             selected_role
         )
+
+        save_managed_roles(interaction.user)
 
         if previous_role is not None:
             previous_key = next(
@@ -543,6 +604,8 @@ class PlatformSelect(discord.ui.Select):
                 *roles_to_add
             )
 
+        save_managed_roles(interaction.user)
+
         if selected_platforms:
             selected_labels = [
                 PLATFORM_LABELS[platform_key]
@@ -654,6 +717,8 @@ class GameSelect(discord.ui.Select):
             await interaction.user.add_roles(
                 *roles_to_add
             )
+
+        save_managed_roles(interaction.user)
 
         if selected_games:
             selected_labels = [
@@ -876,7 +941,7 @@ async def on_message(message):
 
     print(
         f"{message.author} earned {xp_amount} XP "
-        f"and now has {total_xp} at level {new_level}."
+        f"and now has {total_xp} XP at level {new_level}."
     )
 
     if new_level > old_level:
@@ -888,7 +953,16 @@ async def on_message(message):
 
 @client.event
 async def on_member_join(member):
-    """Generate and send a welcome card for a new member."""
+    """Restore saved roles and send welcome card."""
+    await restore_managed_roles(member)
+
+    member_record = get_or_create_member(member.id)
+
+    await sync_level_roles(
+        member,
+        member_record[2],
+    )
+
     login_channel = client.get_channel(
         login_channel_id
     )

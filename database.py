@@ -23,6 +23,16 @@ def initialise_database():
             """
         )
 
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS member_roles (
+            user_id INTEGER NOT NULL,
+            role_id INTEGER NOT NULL,
+            PRIMARY KEY (user_id, role_id)
+            )
+            """
+        )
+
 
 def get_or_create_member(user_id: int):
     """Return a saved member record or create a new one."""
@@ -79,6 +89,55 @@ def update_member_progress(
                 user_id,
             ),
         )
+
+
+def save_member_roles(
+    user_id: int,
+    role_ids: set[int]
+):
+    """Save the Discord roles managed by Miso for a member."""
+    get_or_create_member(user_id)
+
+    with sqlite3.connect(DATABASE_PATH) as connection:
+        connection.execute(
+            """
+            DELETE FROM member_roles
+            WHERE user_id = ?
+            """,
+            (user_id,),
+        )
+
+        connection.executemany(
+            """
+            INSERT INTO member_roles (
+                user_id,
+                role_id
+            )
+            VALUES (?, ?)
+            """,
+            [
+                (user_id, role_id)
+                for role_id in role_ids
+            ],
+        )
+
+
+def get_member_roles(user_id: int) -> set[int]:
+    """Return the saved Discord roles managed by Miso."""
+    with sqlite3.connect(DATABASE_PATH) as connection:
+        rows = connection.execute(
+            """
+            SELECT role_id
+            FROM member_roles
+            WHERE user_id = ?
+            """,
+            (user_id,),
+        ).fetchall()
+
+    return {
+        row[0]
+        for row in rows
+    }
 
 
 def xp_required_for_next_level(current_level: int) -> int:
