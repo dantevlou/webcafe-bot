@@ -1,10 +1,13 @@
 import os
+import random
+import time
 from io import BytesIO
 
 import discord
 from dotenv import load_dotenv
 from PIL import Image
 
+from database import add_xp, initialise_database
 from settings_panel import (
     OUTPUT_PATH as SETTINGS_PANEL_PATH,
     create_settings_panel,
@@ -124,13 +127,84 @@ GAME_LABELS = {
     "roblox": "Roblox",
 }
 
+# Level roles
+LEVEL_ROLE_IDS = {
+    1: int(os.getenv("NEWCOMER_ROLE_ID")),
+    10: int(os.getenv("CAFE_REGULAR_ROLE_ID")),
+    20: int(os.getenv("CAFE_MEMBER_ROLE_ID")),
+    30: int(os.getenv("CAFE_ENTHUSIAST_ROLE_ID")),
+    40: int(os.getenv("CAFE_KEEPER_ROLE_ID")),
+    50: int(os.getenv("CAFE_CONNOISSEUR_ROLE_ID")),
+    60: int(os.getenv("CAFE_INSIDER_ROLE_ID")),
+    70: int(os.getenv("CAFE_STAR_ROLE_ID")),
+    80: int(os.getenv("CAFE_CELEBRITY_ROLE_ID")),
+    90: int(os.getenv("CAFE_ICON_ROLE_ID")),
+    100: int(os.getenv("CAFE_LEGEND_ROLE_ID")),
+}
+
+XP_MIN = 10
+XP_MAX = 15
+XP_COOLDOWN_SECONDS = 60
+
+xp_cooldowns = {}
+
 intents = discord.Intents.default()
 intents.members = True
+intents.message_content = True
 
 client = discord.Client(intents=intents)
 
 
+async def sync_level_roles(
+    member: discord.Member,
+    level: int,
+):
+    """Give a member the correct milestone role for their level."""
+    eligible_levels = [
+        milestone
+        for milestone in LEVEL_ROLE_IDS
+        if milestone <= level
+    ]
+
+    if not eligible_levels:
+        return
+
+    current_milestone = max(eligible_levels)
+    selected_role_id = LEVEL_ROLE_IDS[current_milestone]
+
+    selected_role = member.guild.get_role(
+        selected_role_id
+    )
+
+    current_level_roles = [
+        role
+        for role in member.roles
+        if role.id in LEVEL_ROLE_IDS.values()
+    ]
+
+    roles_to_remove = [
+        role
+        for role in current_level_roles
+        if role.id != selected_role_id
+    ]
+
+    if roles_to_remove:
+        await member.remove_roles(
+            *roles_to_remove
+        )
+
+    if (
+        selected_role is not None
+        and selected_role not in member.roles
+    ):
+        await member.add_roles(
+            selected_role
+        )
+
+
 class ColourSelect(discord.ui.Select):
+    """Handle single-choice colour role selection."""
+
     def __init__(self):
         options = [
             discord.SelectOption(label="Pink", value="pink"),
@@ -155,6 +229,7 @@ class ColourSelect(discord.ui.Select):
         )
 
     async def callback(self, interaction: discord.Interaction):
+        """Update the member's colour role and grant server access."""
         await interaction.response.defer(ephemeral=True)
 
         selected_colour = self.values[0]
@@ -198,6 +273,8 @@ class ColourSelect(discord.ui.Select):
 
 
 class PronounButton(discord.ui.Button):
+    """Handle single-choice pronoun role selection."""
+
     def __init__(
         self,
         label: str,
@@ -210,6 +287,7 @@ class PronounButton(discord.ui.Button):
         self.pronoun_key = pronoun_key
 
     async def callback(self, interaction: discord.Interaction):
+        """Update the member's selected pronoun role."""
         await interaction.response.defer(ephemeral=True)
 
         selected_role_id = PRONOUN_ROLE_IDS[
@@ -286,6 +364,8 @@ class PronounButton(discord.ui.Button):
 
 
 class RegionButton(discord.ui.Button):
+    """Handle single-choice region role selection."""
+
     def __init__(
         self,
         label: str,
@@ -298,6 +378,7 @@ class RegionButton(discord.ui.Button):
         self.region_key = region_key
 
     async def callback(self, interaction: discord.Interaction):
+        """Update the member's selected region role."""
         await interaction.response.defer(ephemeral=True)
 
         selected_role_id = REGION_ROLE_IDS[
@@ -374,6 +455,8 @@ class RegionButton(discord.ui.Button):
 
 
 class PlatformSelect(discord.ui.Select):
+    """Handle multi-select gaming platform roles."""
+
     def __init__(self):
         options = [
             discord.SelectOption(
@@ -406,6 +489,7 @@ class PlatformSelect(discord.ui.Select):
         )
 
     async def callback(self, interaction: discord.Interaction):
+        """Synchronise the member's selected platform roles."""
         await interaction.response.defer(ephemeral=True)
 
         selected_platforms = set(self.values)
@@ -487,6 +571,8 @@ class PlatformSelect(discord.ui.Select):
 
 
 class GameSelect(discord.ui.Select):
+    """Handle multi-select game roles."""
+
     def __init__(self):
         options = [
             discord.SelectOption(
@@ -515,6 +601,7 @@ class GameSelect(discord.ui.Select):
         )
 
     async def callback(self, interaction: discord.Interaction):
+        """Synchronise the member's selected game roles."""
         await interaction.response.defer(ephemeral=True)
 
         selected_games = set(self.values)
@@ -594,6 +681,8 @@ class GameSelect(discord.ui.Select):
 
 
 class ProfileSettingsLayout(discord.ui.LayoutView):
+    """Build the interactive user settings panel."""
+
     def __init__(self):
         super().__init__(timeout=None)
 
@@ -712,6 +801,7 @@ class ProfileSettingsLayout(discord.ui.LayoutView):
 
 @client.event
 async def on_ready():
+    """Prepare the settings panel when Miso connects to Discord."""
     print(f"Logged in as {client.user}")
 
     user_settings_channel = client.get_channel(
@@ -744,7 +834,61 @@ async def on_ready():
 
 
 @client.event
+async def on_message(message):
+    """Award eligible members XP and update their level role."""
+    if message.author.bot:
+        return
+
+    if message.guild is None:
+        return
+
+    cooldown_key = (
+        message.guild.id,
+        message.author.id,
+    )
+
+    current_time = time.monotonic()
+    last_xp_time = xp_cooldowns.get(cooldown_key)
+
+    if (
+        last_xp_time is not None
+        and current_time - last_xp_time
+        < XP_COOLDOWN_SECONDS
+    ):
+        return
+
+    xp_cooldowns[cooldown_key] = current_time
+
+    xp_amount = random.randint(
+        XP_MIN,
+        XP_MAX,
+    )
+
+    total_xp, old_level, new_level = add_xp(
+        message.author.id,
+        xp_amount,
+    )
+
+    await sync_level_roles(
+        message.author,
+        new_level,
+    )
+
+    print(
+        f"{message.author} earned {xp_amount} XP "
+        f"and now has {total_xp} at level {new_level}."
+    )
+
+    if new_level > old_level:
+        print(
+            f"{message.author} reached level "
+            f"{new_level} with {total_xp} XP."
+        )
+
+
+@client.event
 async def on_member_join(member):
+    """Generate and send a welcome card for a new member."""
     login_channel = client.get_channel(
         login_channel_id
     )
@@ -766,4 +910,5 @@ async def on_member_join(member):
         )
 
 
-client.run(token)
+initialise_database()
+client.run(token) 
