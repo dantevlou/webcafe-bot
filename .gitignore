@@ -15,6 +15,7 @@ __pycache__/
 welcome_preview.png
 settings_panel.png
 test_avatar.png
+rank_up_preview.png
 
 # Local database
 data/webcafe.db
