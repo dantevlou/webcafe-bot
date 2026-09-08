@@ -44,6 +44,8 @@ def create_rank_up_card() -> None:
     draw = ImageDraw.Draw(image)
 
     title_bar_font = load_font(17, bold=True)
+    heading_font = load_font(28, bold=True)
+    body_font = load_font(14)
 
     window_left = 20
     window_top = 20
@@ -200,6 +202,27 @@ def create_rank_up_card() -> None:
         title_text,
         fill=LINEN,
         font=title_bar_font,
+    )
+
+    # Main body
+    heading_text = "RANK UP"
+    subheading_text = "new rank unlocked"
+
+    content_left = window_left + 20
+    content_top = title_bar_bottom + 20
+
+    draw.text(
+        (content_left, content_top),
+        heading_text,
+        fill=MIDNIGHT_VIOLET,
+        font=heading_font,
+    )
+
+    draw.text(
+        (content_left, content_top + 34),
+    subheading_text,
+    fill=SLATE_BLUE,
+    font=body_font,
     )
 
     image.save(OUTPUT_PATH)
