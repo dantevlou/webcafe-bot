@@ -1,8 +1,9 @@
 from pathlib import Path
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 
 from theme import (
+    LINEN,
     MIDNIGHT_VIOLET,
     PALE_SLATE, 
     SLATE_BLUE,
@@ -15,6 +16,23 @@ OUTPUT_PATH = Path("rank_up_preview.png")
 WIDTH = 450
 HEIGHT = 250
 
+JETBRAINS_MONO_PATH = Path(
+    r"C:\Users\dante\AppData\Local\Microsoft\Windows\Fonts"
+    r"\JetBrainsMono-VariableFont_wght.ttf"
+)
+
+
+def load_font(size: int, bold: bool = False):
+    font = ImageFont.truetype(
+        JETBRAINS_MONO_PATH,
+        size=size,
+    )
+
+    if bold:
+        font.set_variation_by_name("Bold")
+
+    return font
+
 
 def create_rank_up_card() -> None:
     image = Image.new(
@@ -24,6 +42,8 @@ def create_rank_up_card() -> None:
     )
 
     draw = ImageDraw.Draw(image)
+
+    title_bar_font = load_font(17, bold=True)
 
     window_left = 20
     window_top = 20
@@ -155,6 +175,31 @@ def create_rank_up_card() -> None:
         ),
         fill=MIDNIGHT_VIOLET,
         width=1
+    )
+
+    # Title-bar text
+    title_text = "webcafe.exe"
+
+    title_bbox = draw.textbbox(
+        (0, 0),
+        title_text,
+        font=title_bar_font,
+    )
+
+    title_height = title_bbox[3] - title_bbox[1]
+
+    title_x = window_left + 12
+    title_y = (
+        title_bar_top
+        + (title_bar_height - title_height) // 2
+        - title_bbox[1]
+    )
+
+    draw.text(
+        (title_x, title_y),
+        title_text,
+        fill=LINEN,
+        font=title_bar_font,
     )
 
     image.save(OUTPUT_PATH)
