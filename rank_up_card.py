@@ -34,7 +34,7 @@ def load_font(size: int, bold: bool = False):
     return font
 
 
-def create_rank_up_card() -> None:
+def create_rank_up_card(rank_name: str) -> None:
     image = Image.new(
         "RGB",
         (WIDTH, HEIGHT),
@@ -46,6 +46,7 @@ def create_rank_up_card() -> None:
     title_bar_font = load_font(17, bold=True)
     heading_font = load_font(28, bold=True)
     body_font = load_font(14)
+    rank_font = load_font(22, bold=True)
 
     window_left = 20
     window_top = 20
@@ -207,6 +208,7 @@ def create_rank_up_card() -> None:
     # Main body
     heading_text = "RANK UP"
     subheading_text = "new rank unlocked"
+    rank_text = rank_name.upper()
 
     content_left = window_left + 20
     content_top = title_bar_bottom + 20
@@ -225,10 +227,17 @@ def create_rank_up_card() -> None:
     font=body_font,
     )
 
+    draw.text(
+        (content_left, content_top + 56),
+        rank_text,
+        fill=MIDNIGHT_VIOLET,
+        font=rank_font,
+    )
+
     image.save(OUTPUT_PATH)
 
     print(f"Saved preview to {OUTPUT_PATH}")
 
 
 if __name__ == "__main__":
-    create_rank_up_card()
+    create_rank_up_card("Cafe Regular")
