@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 from theme import (
     LINEN,
@@ -34,7 +34,10 @@ def load_font(size: int, bold: bool = False):
     return font
 
 
-def create_rank_up_card(rank_name: str) -> None:
+def create_rank_up_card(
+        rank_name: str,
+        avatar: Image.Image | None = None,
+    ) -> None:
     image = Image.new(
         "RGB",
         (WIDTH, HEIGHT),
@@ -233,6 +236,47 @@ def create_rank_up_card(rank_name: str) -> None:
         fill=MIDNIGHT_VIOLET,
         font=rank_font,
     )
+
+    # Avatar
+    avatar_size = 92
+    avatar_left = window_right - avatar_size - 24
+    avatar_top = title_bar_bottom + 30
+    avatar_border = 5
+
+    if avatar is not None:
+        draw.ellipse(
+            (
+                avatar_left - avatar_border,
+                avatar_top - avatar_border,
+                avatar_left + avatar_size + avatar_border,
+                avatar_top + avatar_size + avatar_border,
+            ),
+            fill=LINEN,
+        )
+
+        avatar_image = ImageOps.fit(
+            avatar,
+            (avatar_size, avatar_size),
+        )
+
+        avatar_mask = Image.new(
+            "L",
+            (avatar_size, avatar_size),
+            0,
+        )
+
+        avatar_mask_draw = ImageDraw.Draw(avatar_mask)
+
+        avatar_mask_draw.ellipse(
+            (0, 0, avatar_size, avatar_size),
+            fill=255,
+        )
+
+        image.paste(
+            avatar_image,
+            (avatar_left, avatar_top),
+            avatar_mask,
+        )
 
     image.save(OUTPUT_PATH)
 
