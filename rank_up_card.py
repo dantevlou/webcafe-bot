@@ -36,6 +36,7 @@ def load_font(size: int, bold: bool = False):
 
 def create_rank_up_card(
         rank_name: str,
+        rank_level: int,
         avatar: Image.Image | None = None,
     ) -> None:
     image = Image.new(
@@ -50,6 +51,7 @@ def create_rank_up_card(
     heading_font = load_font(28, bold=True)
     body_font = load_font(14)
     rank_font = load_font(22, bold=True)
+    level_font = load_font(13, bold=True)
 
     window_left = 20
     window_top = 20
@@ -210,8 +212,9 @@ def create_rank_up_card(
 
     # Main body
     heading_text = "RANK UP"
-    subheading_text = "new rank unlocked"
+    subheading_text = "you ranked up to"
     rank_text = rank_name.upper()
+    level_text = f"LEVEL {rank_level}"
 
     content_left = window_left + 20
     content_top = title_bar_bottom + 20
@@ -235,6 +238,13 @@ def create_rank_up_card(
         rank_text,
         fill=MIDNIGHT_VIOLET,
         font=rank_font,
+    )
+
+    draw.text(
+        (content_left, content_top + 86),
+        level_text,
+        fill=SLATE_BLUE,
+        font=level_font,
     )
 
     # Avatar
@@ -284,4 +294,4 @@ def create_rank_up_card(
 
 
 if __name__ == "__main__":
-    create_rank_up_card("Cafe Regular")
+    create_rank_up_card("Cafe Regular", 10)
