@@ -34,6 +34,10 @@ def load_font(size: int, bold: bool = False):
     return font
 
 
+def has_inner_panel(rank_level: int) -> bool:
+    return rank_level >= 20
+
+
 def create_rank_up_card(
         rank_name: str,
         rank_level: int,
@@ -210,6 +214,24 @@ def create_rank_up_card(
         font=title_bar_font,
     )
 
+    # Content panel
+    if has_inner_panel(rank_level):
+        panel_left = window_left + 12
+        panel_top = title_bar_bottom + 12
+        panel_right = window_right - 12
+        panel_bottom = window_bottom - 12
+
+        draw.rectangle(
+            (
+                panel_left,
+                panel_top,
+                panel_right,
+                panel_bottom,
+            ),
+            outline=SLATE_BLUE,
+            width=2,
+        )
+
     # Main body
     heading_text = "RANK UP"
     subheading_text = "you ranked up to"
@@ -294,4 +316,4 @@ def create_rank_up_card(
 
 
 if __name__ == "__main__":
-    create_rank_up_card("Cafe Regular", 10)
+    create_rank_up_card("Cafe Member", 20)
