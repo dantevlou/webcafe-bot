@@ -50,6 +50,10 @@ def has_avatar_accent(rank_level: int) -> bool:
     return rank_level >= 50
 
 
+def has_level_badge(rank_level: int) -> bool:
+    return rank_level >= 60
+
+
 def create_rank_up_card(
     rank_name: str,
     rank_level: int,
@@ -325,12 +329,48 @@ def create_rank_up_card(
         font=rank_font,
     )
 
-    draw.text(
-        (content_left, content_top + 86),
-        level_text,
-        fill=SOFT_PERIWINKLE,
-        font=level_font,
-    )
+    if has_level_badge(rank_level):
+        level_x = content_left
+        level_y = content_top + 84
+
+        level_bbox = draw.textbbox(
+            (0, 0),
+            level_text,
+            font=level_font,
+        )
+
+        level_width = level_bbox[2] - level_bbox[0]
+        level_height = level_bbox[3] - level_bbox[1]
+
+        badge_padding_x = 6
+        badge_padding_y = 3
+
+        draw.rectangle(
+            (
+                level_x,
+                level_y,
+                level_x + level_width + (badge_padding_x * 2),
+                level_y + level_height + (badge_padding_y * 2),
+            ),
+            fill=SLATE_BLUE,
+        )
+
+        draw.text(
+            (
+                level_x + badge_padding_x,
+                level_y + badge_padding_y - level_bbox[1],
+            ),
+            level_text,
+            fill=LINEN,
+            font=level_font,
+        )
+    else:
+        draw.text(
+            (content_left, content_top + 86),
+            level_text,
+            fill=SOFT_PERIWINKLE,
+            font=level_font,
+        )
 
     # Accent divider
     if has_accent_divider(rank_level):
@@ -406,9 +446,4 @@ def create_rank_up_card(
 
 
 if __name__ == "__main__":
-    with Image.open("test_avatar.png") as avatar:
-        create_rank_up_card(
-            "Cafe Connoisseur",
-            50,
-            avatar,
-        )
+    create_rank_up_card("Cafe Insider", 60)
