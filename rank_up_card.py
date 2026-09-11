@@ -5,7 +5,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 from theme import (
     LINEN,
     MIDNIGHT_VIOLET,
-    PALE_SLATE, 
+    PALE_SLATE,
     SLATE_BLUE,
     SOFT_PERIWINKLE,
 )
@@ -39,10 +39,10 @@ def has_inner_panel(rank_level: int) -> bool:
 
 
 def create_rank_up_card(
-        rank_name: str,
-        rank_level: int,
-        avatar: Image.Image | None = None,
-    ) -> None:
+    rank_name: str,
+    rank_level: int,
+    avatar: Image.Image | None = None,
+) -> None:
     image = Image.new(
         "RGB",
         (WIDTH, HEIGHT),
@@ -61,6 +61,9 @@ def create_rank_up_card(
     window_top = 20
     window_right = 430
     window_bottom = 230
+
+    avatar_size = 92
+    avatar_left = window_right - avatar_size - 24
 
     # Window shell
     shadow_offset = 5
@@ -101,7 +104,7 @@ def create_rank_up_card(
         ),
         fill=SLATE_BLUE,
         outline=MIDNIGHT_VIOLET,
-        width = 2,
+        width=2,
     )
 
     # Window buttons
@@ -151,7 +154,7 @@ def create_rank_up_card(
             button_y + 13,
         ),
         fill=MIDNIGHT_VIOLET,
-        width=1
+        width=1,
     )
 
     # Maximise
@@ -163,7 +166,7 @@ def create_rank_up_card(
             button_y + 13,
         ),
         outline=MIDNIGHT_VIOLET,
-        width=1
+        width=1,
     )
 
     # Close
@@ -235,11 +238,12 @@ def create_rank_up_card(
     # Main body
     heading_text = "RANK UP"
     subheading_text = "you ranked up to"
-    rank_text = rank_name.upper()
     level_text = f"LEVEL {rank_level}"
 
     content_left = window_left + 20
     content_top = title_bar_bottom + 20
+
+    rank_text = rank_name.upper()
 
     draw.text(
         (content_left, content_top),
@@ -250,9 +254,9 @@ def create_rank_up_card(
 
     draw.text(
         (content_left, content_top + 34),
-    subheading_text,
-    fill=SOFT_PERIWINKLE,
-    font=body_font,
+        subheading_text,
+        fill=SOFT_PERIWINKLE,
+        font=body_font,
     )
 
     draw.text(
@@ -270,8 +274,6 @@ def create_rank_up_card(
     )
 
     # Avatar
-    avatar_size = 92
-    avatar_left = window_right - avatar_size - 24
     avatar_top = title_bar_bottom + 30
     avatar_border = 5
 
@@ -316,4 +318,4 @@ def create_rank_up_card(
 
 
 if __name__ == "__main__":
-    create_rank_up_card("Cafe Member", 20)
+    create_rank_up_card("Cafe Connoisseur", 50)
