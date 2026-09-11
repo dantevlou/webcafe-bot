@@ -38,6 +38,10 @@ def has_inner_panel(rank_level: int) -> bool:
     return rank_level >= 20
 
 
+def has_accent_divider(rank_level: int) -> bool:
+    return rank_level >= 30
+
+
 def create_rank_up_card(
     rank_name: str,
     rank_level: int,
@@ -273,6 +277,21 @@ def create_rank_up_card(
         font=level_font,
     )
 
+    # Accent divider
+    if has_accent_divider(rank_level):
+        divider_y = content_top + 112
+
+        draw.line(
+            (
+                content_left,
+                divider_y,
+                avatar_left - 20,
+                divider_y,
+            ),
+            fill=SLATE_BLUE,
+            width=2,
+        )
+
     # Avatar
     avatar_top = title_bar_bottom + 30
     avatar_border = 5
@@ -318,4 +337,4 @@ def create_rank_up_card(
 
 
 if __name__ == "__main__":
-    create_rank_up_card("Cafe Connoisseur", 50)
+    create_rank_up_card("Cafe Enthusiast", 30)
