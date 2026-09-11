@@ -42,6 +42,10 @@ def has_accent_divider(rank_level: int) -> bool:
     return rank_level >= 30
 
 
+def has_corner_accents(rank_level: int) -> bool:
+    return rank_level >= 40
+
+
 def create_rank_up_card(
     rank_name: str,
     rank_level: int,
@@ -182,7 +186,7 @@ def create_rank_up_card(
             button_y + 13,
         ),
         fill=MIDNIGHT_VIOLET,
-        width=1
+        width=1,
     )
 
     draw.line(
@@ -193,7 +197,7 @@ def create_rank_up_card(
             button_y + 13,
         ),
         fill=MIDNIGHT_VIOLET,
-        width=1
+        width=1,
     )
 
     # Title-bar text
@@ -238,6 +242,53 @@ def create_rank_up_card(
             outline=SOFT_PERIWINKLE,
             width=2,
         )
+
+        if has_corner_accents(rank_level):
+            corner_length = 12
+
+            draw.line(
+                (
+                    panel_left,
+                    panel_top,
+                    panel_left + corner_length,
+                    panel_top,
+                ),
+                fill=LINEN,
+                width=2,
+            )
+
+            draw.line(
+                (
+                    panel_left,
+                    panel_top,
+                    panel_left,
+                    panel_top + corner_length,
+                ),
+                fill=LINEN,
+                width=2,
+            )
+
+            draw.line(
+                (
+                    panel_right - corner_length,
+                    panel_bottom,
+                    panel_right,
+                    panel_bottom,
+                ),
+                fill=LINEN,
+                width=2,
+            )
+
+            draw.line(
+                (
+                    panel_right,
+                    panel_bottom - corner_length,
+                    panel_right,
+                    panel_bottom,
+                ),
+                fill=LINEN,
+                width=2,
+            )
 
     # Main body
     heading_text = "RANK UP"
@@ -337,4 +388,4 @@ def create_rank_up_card(
 
 
 if __name__ == "__main__":
-    create_rank_up_card("Cafe Enthusiast", 30)
+    create_rank_up_card("Cafe Keeper", 40)
