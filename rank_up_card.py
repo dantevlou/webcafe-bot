@@ -82,8 +82,8 @@ def create_rank_up_card(
             window_right,
             window_bottom,
         ),
-        fill=PALE_SLATE,
-        outline=MIDNIGHT_VIOLET,
+        fill=MIDNIGHT_VIOLET,
+        outline=PALE_SLATE,
         width=3,
     )
 
@@ -228,7 +228,7 @@ def create_rank_up_card(
                 panel_right,
                 panel_bottom,
             ),
-            outline=SLATE_BLUE,
+            outline=SOFT_PERIWINKLE,
             width=2,
         )
 
@@ -244,28 +244,28 @@ def create_rank_up_card(
     draw.text(
         (content_left, content_top),
         heading_text,
-        fill=MIDNIGHT_VIOLET,
+        fill=LINEN,
         font=heading_font,
     )
 
     draw.text(
         (content_left, content_top + 34),
     subheading_text,
-    fill=SLATE_BLUE,
+    fill=SOFT_PERIWINKLE,
     font=body_font,
     )
 
     draw.text(
         (content_left, content_top + 56),
         rank_text,
-        fill=MIDNIGHT_VIOLET,
+        fill=LINEN,
         font=rank_font,
     )
 
     draw.text(
         (content_left, content_top + 86),
         level_text,
-        fill=SLATE_BLUE,
+        fill=SOFT_PERIWINKLE,
         font=level_font,
     )
 
