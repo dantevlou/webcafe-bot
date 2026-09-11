@@ -248,10 +248,10 @@ def create_rank_up_card(
 
             draw.line(
                 (
-                    panel_left,
-                    panel_top,
+                    panel_left - 1,
+                    panel_top - 1,
                     panel_left + corner_length,
-                    panel_top,
+                    panel_top -1,
                 ),
                 fill=LINEN,
                 width=2,
@@ -259,9 +259,9 @@ def create_rank_up_card(
 
             draw.line(
                 (
-                    panel_left,
-                    panel_top,
-                    panel_left,
+                    panel_left - 1,
+                    panel_top - 1,
+                    panel_left - 1,
                     panel_top + corner_length,
                 ),
                 fill=LINEN,
