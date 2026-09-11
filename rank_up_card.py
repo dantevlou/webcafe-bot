@@ -54,6 +54,10 @@ def has_level_badge(rank_level: int) -> bool:
     return rank_level >= 60
 
 
+def has_heading_star(rank_level: int) -> bool:
+    return rank_level >= 70
+
+
 def create_rank_up_card(
     rank_name: str,
     rank_level: int,
@@ -315,6 +319,40 @@ def create_rank_up_card(
         font=heading_font,
     )
 
+    if has_heading_star(rank_level):
+        heading_bbox = draw.textbbox(
+            (0, 0),
+            heading_text,
+            font=heading_font,
+        )
+
+        heading_width = heading_bbox[2] - heading_bbox[0]
+        heading_center_y = (
+            content_top
+            + (heading_bbox[1] + heading_bbox[3]) // 2
+        )
+
+        star_center_x = content_left + heading_width + 18
+        star_center_y = heading_center_y
+
+        star_points = [
+            (star_center_x, star_center_y - 9),
+            (star_center_x + 2, star_center_y - 3),
+            (star_center_x + 9, star_center_y - 3),
+            (star_center_x + 4, star_center_y + 1),
+            (star_center_x + 6, star_center_y + 8),
+            (star_center_x, star_center_y + 4),
+            (star_center_x - 6, star_center_y + 8),
+            (star_center_x - 4, star_center_y + 1),
+            (star_center_x - 9, star_center_y - 3),
+            (star_center_x - 2, star_center_y - 3),
+        ]
+
+        draw.polygon(
+            star_points,
+            fill=LINEN,
+        )
+
     draw.text(
         (content_left, content_top + 34),
         subheading_text,
@@ -446,4 +484,4 @@ def create_rank_up_card(
 
 
 if __name__ == "__main__":
-    create_rank_up_card("Cafe Insider", 60)
+    create_rank_up_card("Cafe Star", 70)
