@@ -67,7 +67,7 @@ def create_rank_up_card(
     window_bottom = 230
 
     avatar_size = 92
-    avatar_left = window_right - avatar_size - 24
+    avatar_left = window_right - avatar_size - 30
 
     # Window shell
     shadow_offset = 5
