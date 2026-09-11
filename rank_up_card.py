@@ -58,6 +58,10 @@ def has_heading_star(rank_level: int) -> bool:
     return rank_level >= 70
 
 
+def has_double_panel(rank_level: int) -> bool:
+    return rank_level >= 80
+
+
 def create_rank_up_card(
     rank_name: str,
     rank_level: int,
@@ -254,6 +258,20 @@ def create_rank_up_card(
             outline=SOFT_PERIWINKLE,
             width=2,
         )
+
+        if has_double_panel(rank_level):
+            panel_inset = 4
+
+            draw.rectangle(
+                (
+                    panel_left + panel_inset,
+                    panel_top + panel_inset,
+                    panel_right - panel_inset,
+                    panel_bottom - panel_inset,
+                ),
+                outline=SLATE_BLUE,
+                width=1,
+            )
 
         if has_corner_accents(rank_level):
             corner_length = 12
@@ -484,4 +502,4 @@ def create_rank_up_card(
 
 
 if __name__ == "__main__":
-    create_rank_up_card("Cafe Star", 70)
+    create_rank_up_card("Cafe Celebrity", 80)
