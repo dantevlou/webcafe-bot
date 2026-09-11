@@ -46,6 +46,10 @@ def has_corner_accents(rank_level: int) -> bool:
     return rank_level >= 40
 
 
+def has_avatar_accent(rank_level: int) -> bool:
+    return rank_level >= 50
+
+
 def create_rank_up_card(
     rank_name: str,
     rank_level: int,
@@ -348,6 +352,20 @@ def create_rank_up_card(
     avatar_border = 5
 
     if avatar is not None:
+        if has_avatar_accent(rank_level):
+            accent_offset = avatar_border + 4
+
+            draw.ellipse(
+                (
+                    avatar_left - accent_offset,
+                    avatar_top - accent_offset,
+                    avatar_left + avatar_size + accent_offset,
+                    avatar_top + avatar_size + accent_offset,
+                ),
+                outline=SLATE_BLUE,
+                width=2,
+            )
+            
         draw.ellipse(
             (
                 avatar_left - avatar_border,
@@ -388,4 +406,9 @@ def create_rank_up_card(
 
 
 if __name__ == "__main__":
-    create_rank_up_card("Cafe Keeper", 40)
+    with Image.open("test_avatar.png") as avatar:
+        create_rank_up_card(
+            "Cafe Connoisseur",
+            50,
+            avatar,
+        )
