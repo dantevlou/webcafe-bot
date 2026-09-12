@@ -62,6 +62,10 @@ def has_double_panel(rank_level: int) -> bool:
     return rank_level >= 80
 
 
+def has_body_accent_frame(rank_level: int) -> bool:
+    return rank_level >= 90
+
+
 def create_rank_up_card(
     rank_name: str,
     rank_level: int,
@@ -240,6 +244,22 @@ def create_rank_up_card(
         fill=LINEN,
         font=title_bar_font,
     )
+
+    # Body accent frame
+    if has_body_accent_frame(rank_level):
+        frame_inset = 6
+        frame_top = title_bar_bottom + 6
+
+        draw.rectangle(
+            (
+                window_left + frame_inset,
+                frame_top,
+                window_right - frame_inset,
+                window_bottom - frame_inset,
+            ),
+            outline=SLATE_BLUE,
+            width=1,
+        )
 
     # Content panel
     if has_inner_panel(rank_level):
@@ -502,4 +522,4 @@ def create_rank_up_card(
 
 
 if __name__ == "__main__":
-    create_rank_up_card("Cafe Celebrity", 80)
+    create_rank_up_card("Cafe Icon", 90)
