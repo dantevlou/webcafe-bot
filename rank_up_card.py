@@ -7,8 +7,8 @@ from theme import SOFT_PERIWINKLE
 
 OUTPUT_PATH = Path("rank_up_preview.png")
 
-WIDTH = 900
-HEIGHT = 500
+WIDTH = 1200
+HEIGHT = 480
 
 
 def create_rank_up_card() -> None:
