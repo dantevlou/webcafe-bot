@@ -3,8 +3,10 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 
 from theme import (
+    LINEN,
     MIDNIGHT_VIOLET,
     PALE_SLATE,
+    SLATE_BLUE,
     SOFT_PERIWINKLE,
 )
 
@@ -52,6 +54,40 @@ def create_rank_up_card() -> None:
         fill=MIDNIGHT_VIOLET,
         outline=PALE_SLATE,
         width=4
+    )
+
+    # Browser header
+    header_left = banner_left + 8
+    header_top = banner_top + 8
+    header_right = banner_right - 8
+
+    title_bar_bottom = header_top + 42
+
+    draw.rectangle(
+        (
+            header_left,
+            header_top,
+            header_right,
+            title_bar_bottom,
+        ),
+        fill=SLATE_BLUE,
+        outline=MIDNIGHT_VIOLET,
+        width=3,
+    )
+
+    toolbar_top = title_bar_bottom + 3
+    toolbar_bottom = toolbar_top + 48
+
+    draw.rectangle(
+        (
+            header_left,
+            toolbar_top,
+            header_right,
+            toolbar_bottom,
+        ),
+        fill=PALE_SLATE,
+        outline=MIDNIGHT_VIOLET,
+        width=3,
     )
 
     image.save(OUTPUT_PATH)
