@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 
 from theme import (
     LINEN,
@@ -16,6 +16,23 @@ OUTPUT_PATH = Path("rank_up_preview.png")
 WIDTH = 1200
 HEIGHT = 480
 
+JETBRAINS_MONO_PATH = Path(
+    r"C:\Users\dante\AppData\Local\Microsoft\Windows\Fonts"
+    r"\JetBrainsMono-VariableFont_wght.ttf"
+)
+
+
+def load_font(size: int, bold: bool = False):
+    font = ImageFont.truetype(
+        JETBRAINS_MONO_PATH,
+        size=size,
+    )
+
+    if bold:
+        font.set_variation_by_name("Bold")
+
+    return font
+
 
 def create_rank_up_card() -> None:
     image = Image.new(
@@ -25,6 +42,9 @@ def create_rank_up_card() -> None:
     )
 
     draw = ImageDraw.Draw(image)
+
+    title_bar_font = load_font(22, bold=True)
+    address_font = load_font(18)
 
     banner_left = 35
     banner_top = 35
@@ -53,7 +73,7 @@ def create_rank_up_card() -> None:
         ),
         fill=MIDNIGHT_VIOLET,
         outline=PALE_SLATE,
-        width=4
+        width=4,
     )
 
     # Browser header
@@ -73,39 +93,6 @@ def create_rank_up_card() -> None:
         fill=SLATE_BLUE,
         outline=MIDNIGHT_VIOLET,
         width=3,
-    )
-
-    toolbar_top = title_bar_bottom + 3
-    toolbar_bottom = toolbar_top + 48
-
-    draw.rectangle(
-        (
-            header_left,
-            toolbar_top,
-            header_right,
-            toolbar_bottom,
-        ),
-        fill=PALE_SLATE,
-        outline=MIDNIGHT_VIOLET,
-        width=3,
-    )
-
-    # Address bar
-    address_left = header_left + 110
-    address_top = toolbar_top + 9
-    address_right = header_right - 18
-    address_bottom = toolbar_bottom - 9
-
-    draw.rectangle(
-        (
-            address_left,
-            address_top,
-            address_right,
-            address_bottom,
-        ),
-        fill=LINEN,
-        outline=MIDNIGHT_VIOLET,
-        width=2,
     )
 
     # Window controls
@@ -142,56 +129,207 @@ def create_rank_up_card() -> None:
             width=2,
         )
 
-        first_button_x = button_start_x
-        second_button_x = button_start_x + button_size + button_gap
-        third_button_x = button_start_x + (button_size + button_gap) * 2
+    first_button_x = button_start_x
+    second_button_x = (
+        button_start_x
+        + button_size
+        + button_gap
+    )
+    third_button_x = (
+        button_start_x
+        + (button_size + button_gap) * 2
+    )
 
-        # Minimise
-        draw.line(
-            (
-                first_button_x + 6,
-                button_y + 17,
-                first_button_x + 18,
-                button_y + 17,
-            ),
-            fill=MIDNIGHT_VIOLET,
-            width=2,
-        )
+    # Minimise
+    draw.line(
+        (
+            first_button_x + 6,
+            button_y + 17,
+            first_button_x + 18,
+            button_y + 17,
+        ),
+        fill=MIDNIGHT_VIOLET,
+        width=2,
+    )
 
-        # Maximise
-        draw.rectangle(
-            (
-                second_button_x + 6,
-                button_y + 6,
-                second_button_x + 18,
-                button_y + 18,
-            ),
-            outline=MIDNIGHT_VIOLET,
-            width=2,
-        )
+    # Maximise
+    draw.rectangle(
+        (
+            second_button_x + 6,
+            button_y + 6,
+            second_button_x + 18,
+            button_y + 18,
+        ),
+        outline=MIDNIGHT_VIOLET,
+        width=2,
+    )
 
-        # Close
-        draw.line(
-            (
-                third_button_x + 6,
-                button_y + 6,
-                third_button_x + 18,
-                button_y + 18,
-            ),
-            fill=MIDNIGHT_VIOLET,
-            width=2,
-        )
+    # Close
+    draw.line(
+        (
+            third_button_x + 6,
+            button_y + 6,
+            third_button_x + 18,
+            button_y + 18,
+        ),
+        fill=MIDNIGHT_VIOLET,
+        width=2,
+    )
 
-        draw.line(
-            (
-                third_button_x + 18,
-                button_y + 6,
-                third_button_x + 6,
-                button_y + 18,
-            ),
-            fill=MIDNIGHT_VIOLET,
-            width=2,
-                )
+    draw.line(
+        (
+            third_button_x + 18,
+            button_y + 6,
+            third_button_x + 6,
+            button_y + 18,
+        ),
+        fill=MIDNIGHT_VIOLET,
+        width=2,
+    )
+
+    # Title-bar text
+    title_text = "webcafe.exe"
+
+    title_bbox = draw.textbbox(
+        (0, 0),
+        title_text,
+        font=title_bar_font,
+    )
+
+    title_height = title_bbox[3] - title_bbox[1]
+
+    title_x = header_left + 14
+    title_y = (
+        header_top
+        + ((title_bar_bottom - header_top) - title_height) // 2
+        - title_bbox[1]
+    )
+
+    draw.text(
+        (title_x, title_y),
+        title_text,
+        fill=LINEN,
+        font=title_bar_font,
+    )
+
+    # Browser toolbar
+    toolbar_top = title_bar_bottom + 3
+    toolbar_bottom = toolbar_top + 48
+
+    draw.rectangle(
+        (
+            header_left,
+            toolbar_top,
+            header_right,
+            toolbar_bottom,
+        ),
+        fill=PALE_SLATE,
+        outline=MIDNIGHT_VIOLET,
+        width=3,
+    )
+
+    # Address bar
+    address_left = header_left + 110
+    address_top = toolbar_top + 9
+    address_right = header_right - 18
+    address_bottom = toolbar_bottom - 9
+
+    draw.rectangle(
+        (
+            address_left,
+            address_top,
+            address_right,
+            address_bottom,
+        ),
+        fill=LINEN,
+        outline=MIDNIGHT_VIOLET,
+        width=2,
+    )
+
+    # Navigation controls
+    nav_center_y = (toolbar_top + toolbar_bottom) // 2
+
+    back_x = header_left + 24
+
+    draw.line(
+        (
+            back_x + 8,
+            nav_center_y - 7,
+            back_x,
+            nav_center_y,
+            back_x + 8,
+            nav_center_y + 7,
+        ),
+        fill=MIDNIGHT_VIOLET,
+        width=2,
+    )
+
+    forward_x = header_left + 54
+
+    draw.line(
+        (
+            forward_x,
+            nav_center_y - 7,
+            forward_x + 8,
+            nav_center_y,
+            forward_x,
+            nav_center_y + 7,
+        ),
+        fill=MIDNIGHT_VIOLET,
+        width=2,
+    )
+
+    home_x = header_left + 83
+    home_y = nav_center_y
+
+    draw.line(
+        (
+            home_x - 9,
+            home_y,
+            home_x,
+            home_y - 8,
+            home_x + 9,
+            home_y,
+        ),
+        fill=MIDNIGHT_VIOLET,
+        width=2,
+    )
+
+    draw.rectangle(
+        (
+            home_x - 6,
+            home_y,
+            home_x + 6,
+            home_y + 8,
+        ),
+        outline=MIDNIGHT_VIOLET,
+        width=2,
+    )
+
+    # Address-bar text
+    address_text = "https://webcafe.exe/rank-up"
+
+    address_bbox = draw.textbbox(
+        (0, 0),
+        address_text,
+        font=address_font,
+    )
+
+    address_height = address_bbox[3] - address_bbox[1]
+
+    address_text_x = address_left + 12
+    address_text_y = (
+        address_top
+        + ((address_bottom - address_top) - address_height) // 2
+        - address_bbox[1]
+    )
+
+    draw.text(
+        (address_text_x, address_text_y),
+        address_text,
+        fill=MIDNIGHT_VIOLET,
+        font=address_font,
+    )
 
     image.save(OUTPUT_PATH)
 
