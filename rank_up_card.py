@@ -90,6 +90,109 @@ def create_rank_up_card() -> None:
         width=3,
     )
 
+    # Address bar
+    address_left = header_left + 110
+    address_top = toolbar_top + 9
+    address_right = header_right - 18
+    address_bottom = toolbar_bottom - 9
+
+    draw.rectangle(
+        (
+            address_left,
+            address_top,
+            address_right,
+            address_bottom,
+        ),
+        fill=LINEN,
+        outline=MIDNIGHT_VIOLET,
+        width=2,
+    )
+
+    # Window controls
+    button_size = 24
+    button_gap = 5
+    button_total_width = (button_size * 3) + (button_gap * 2)
+
+    button_start_x = (
+        header_right
+        - 12
+        - button_total_width
+    )
+
+    button_y = (
+        header_top
+        + ((title_bar_bottom - header_top) - button_size) // 2
+    )
+
+    for index in range(3):
+        button_x = (
+            button_start_x
+            + index * (button_size + button_gap)
+        )
+
+        draw.rectangle(
+            (
+                button_x,
+                button_y,
+                button_x + button_size,
+                button_y + button_size,
+            ),
+            fill=SOFT_PERIWINKLE,
+            outline=MIDNIGHT_VIOLET,
+            width=2,
+        )
+
+        first_button_x = button_start_x
+        second_button_x = button_start_x + button_size + button_gap
+        third_button_x = button_start_x + (button_size + button_gap) * 2
+
+        # Minimise
+        draw.line(
+            (
+                first_button_x + 6,
+                button_y + 17,
+                first_button_x + 18,
+                button_y + 17,
+            ),
+            fill=MIDNIGHT_VIOLET,
+            width=2,
+        )
+
+        # Maximise
+        draw.rectangle(
+            (
+                second_button_x + 6,
+                button_y + 6,
+                second_button_x + 18,
+                button_y + 18,
+            ),
+            outline=MIDNIGHT_VIOLET,
+            width=2,
+        )
+
+        # Close
+        draw.line(
+            (
+                third_button_x + 6,
+                button_y + 6,
+                third_button_x + 18,
+                button_y + 18,
+            ),
+            fill=MIDNIGHT_VIOLET,
+            width=2,
+        )
+
+        draw.line(
+            (
+                third_button_x + 18,
+                button_y + 6,
+                third_button_x + 6,
+                button_y + 18,
+            ),
+            fill=MIDNIGHT_VIOLET,
+            width=2,
+                )
+
     image.save(OUTPUT_PATH)
 
     print(f"Saved preview to {OUTPUT_PATH}")
