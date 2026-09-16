@@ -34,7 +34,10 @@ def load_font(size: int, bold: bool = False):
     return font
 
 
-def create_rank_up_card() -> None:
+def create_rank_up_card(
+        rank_name: str,
+        rank_level: int,
+) -> None:
     image = Image.new(
         "RGB",
         (WIDTH, HEIGHT),
@@ -45,6 +48,10 @@ def create_rank_up_card() -> None:
 
     title_bar_font = load_font(22, bold=True)
     address_font = load_font(18)
+    heading_font = load_font(58, bold=True)
+    body_font = load_font(22)
+    rank_font = load_font(44, bold=True)
+    level_font = load_font(20, bold=True)
 
     banner_left = 35
     banner_top = 35
@@ -331,10 +338,82 @@ def create_rank_up_card() -> None:
         font=address_font,
     )
 
+    # Achievement content
+    content_left = banner_left + 70
+    content_top = toolbar_bottom + 38
+
+    heading_text = "RANK UP"
+    subheading_text = "you ranked up to"
+    rank_text = rank_name.upper()
+    level_text = f"LEVEL {rank_level}"
+
+    draw.text(
+        (content_left, content_top),
+        heading_text,
+        fill=LINEN,
+        font=heading_font,
+    )
+
+    draw.text(
+        (content_left, content_top + 76),
+        subheading_text,
+        fill=SOFT_PERIWINKLE,
+        font=body_font,
+    )
+
+    draw.text(
+        (content_left, content_top + 76),
+        subheading_text,
+        fill=SOFT_PERIWINKLE,
+        font=body_font,
+    )
+
+    draw.text(
+        (content_left, content_top + 112),
+        rank_text,
+        fill=LINEN,
+        font=rank_font,
+    )
+
+    level_bbox = draw.textbbox(
+        (0, 0),
+        level_text,
+        font=level_font,
+    )
+
+    level_width = level_bbox[2] - level_bbox[0]
+    level_height = level_bbox[3] - level_bbox[1]
+
+    level_x = content_left
+    level_y = content_top + 172
+
+    badge_padding_x = 10
+    badge_padding_y = 5
+
+    draw.rectangle(
+        (
+            level_x,
+            level_y,
+            level_x + level_width + (badge_padding_x * 2),
+            level_y + level_height + (badge_padding_y * 2),
+        ),
+        fill=SLATE_BLUE,
+    )
+
+    draw.text(
+        (
+            level_x + badge_padding_x,
+            level_y + badge_padding_y - level_bbox[1],
+        ),
+        level_text,
+        fill=LINEN,
+        font=level_font,
+    )
+
     image.save(OUTPUT_PATH)
 
     print(f"Saved preview to {OUTPUT_PATH}")
 
 
 if __name__ == "__main__":
-    create_rank_up_card()
+    create_rank_up_card("Cafe Star", 70)
