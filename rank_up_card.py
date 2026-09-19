@@ -1,3 +1,4 @@
+import math
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
@@ -34,9 +35,41 @@ def load_font(size: int, bold: bool = False):
     return font
 
 
+def has_star_motif(rank_name: str) -> bool:
+    return rank_name.casefold() == "cafe star"
+
+
+def draw_filled_star(
+    draw: ImageDraw.ImageDraw,
+    center_x: int,
+    center_y: int,
+    outer_radius: int,
+    fill,
+) -> None:
+    inner_radius = int(outer_radius * 0.45)
+    points = []
+
+    for index in range(10):
+        angle = math.radians(-90 + (index * 36))
+
+        if index % 2 == 0:
+            radius = outer_radius
+        else:
+            radius = inner_radius
+
+        x = center_x + int(math.cos(angle) * radius)
+        y = center_y + int(math.sin(angle) * radius)
+        points.append((x, y))
+
+    draw.polygon(
+        points,
+        fill=fill,
+    )
+
+
 def create_rank_up_card(
-        rank_name: str,
-        rank_level: int,
+    rank_name: str,
+    rank_level: int,
 ) -> None:
     image = Image.new(
         "RGB",
@@ -362,13 +395,6 @@ def create_rank_up_card(
     )
 
     draw.text(
-        (content_left, content_top + 76),
-        subheading_text,
-        fill=SOFT_PERIWINKLE,
-        font=body_font,
-    )
-
-    draw.text(
         (content_left, content_top + 112),
         rank_text,
         fill=LINEN,
@@ -409,6 +435,35 @@ def create_rank_up_card(
         fill=LINEN,
         font=level_font,
     )
+
+    # Rank motif
+    if has_star_motif(rank_name):
+        star_center_x = banner_right - 260
+        star_center_y = toolbar_bottom + 155
+
+        draw_filled_star(
+            draw,
+            star_center_x,
+            star_center_y,
+            62,
+            LINEN,
+        )
+
+        draw_filled_star(
+            draw,
+            star_center_x + 96,
+            star_center_y + 66,
+            24,
+            SOFT_PERIWINKLE,
+        )
+
+        draw_filled_star(
+            draw,
+            star_center_x - 92,
+            star_center_y + 78,
+            18,
+            SLATE_BLUE,
+        )
 
     image.save(OUTPUT_PATH)
 
